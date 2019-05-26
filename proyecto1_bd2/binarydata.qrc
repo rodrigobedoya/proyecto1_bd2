@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>releases.dat</file>
+        <file>randomFileReleases.dat</file>
+        <file>randomFileArtists.dat</file>
+        <file>artists.dat</file>
+    </qresource>
+    <qresource prefix="/data"/>
+</RCC>

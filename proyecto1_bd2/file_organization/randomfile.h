@@ -7,6 +7,7 @@
 #include <string>
 #include "../model/artist.h"
 #include "../model/release.h"
+#include "../model/request.h"
 #include <map>
 #include <vector>
 using namespace std;
@@ -22,20 +23,21 @@ private:
 public:
 	RandomFile()
 	{
-		releasesFile = "releases.dat";
-		artistsFile = "artists.dat";
+        releasesFile = "../proyecto1_bd2/releases.dat";
+        artistsFile = "../proyecto1_bd2/artists.dat";
 	}
 
 	void create()
 	{
 		ifstream file;
 		ofstream randomFile;
-		file.open("releases.dat", ios::in |  ios::binary);
-		randomFile.open("randomFileReleases.dat", ios::out | ios::binary);
-		if (file.is_open())
+        file.open("../proyecto1_bd2/releases.dat", ios::in |  ios::binary);
+        randomFile.open("../proyecto1_bd2/randomFileReleases.dat", ios::out | ios::binary);
+        long count = 0;
+        if (file.is_open())
 		{
 			while(!file.eof())
-			{			
+            {
 				long r_id = 0;
 				string r_name = "";
 				size_t size_r_name = 0;
@@ -63,15 +65,16 @@ public:
 					randomFile.write((const char *)&size_r_country,sizeof(size_t));
 					randomFile.write(&r_country[0],size_r_country);
 					randomFile.write((const char *)&a_id,sizeof(long));
+                    count++;
 				}
 			}
 		}
-
+        cout << count <<endl;
 		file.close();
 		randomFile.close();
 
-		file.open("artists.dat", ios::in |  ios::binary);
-		randomFile.open("randomFileArtists.dat", ios::out | ios::binary);
+        file.open("../proyecto1_bd2/artists.dat", ios::in |  ios::binary);
+        randomFile.open("../proyecto1_bd2/randomFileArtists.dat", ios::out | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -105,7 +108,7 @@ public:
 		releaseIndex.clear();
 		artistIndex.clear();
 		ifstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		long addressR = 0, addressA = 0;
 		if (file.is_open())
 		{
@@ -148,7 +151,7 @@ public:
 
 		file.close();
 
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -187,17 +190,17 @@ public:
 
 	Release* searchReleaseIndex(long index)
 	{
-		map<long,long>::iterator it = releaseIndex.find(index);
-		if(it == releaseIndex.end())
+        map<long,long>::iterator it = releaseIndex.find(index);
+        if(it == releaseIndex.end())
 		{
 			Release* release = new Release;
 			release->print();
-			cout << endl;
-			return release;
+            cout << endl;
+            return NULL;
 		}
 		long pos = it->second;
 		fstream file;
-        file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
         file.seekg (pos,ios::beg);
 
         long r_id = 0;
@@ -228,8 +231,8 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
-		if (file.is_open())
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
+        if (file.is_open())
 		{
 			while(!file.eof())
 			{			
@@ -251,10 +254,20 @@ public:
 				file.read(&r_country[0],size_r_country);
 				file.read((char *)&a_id,sizeof(long));
 
-
-				if (r_id != 0)
+                if (r_id != 0)
 				{
-					if (varName=="name")
+                    if (varName=="id")
+                    {
+                        if(std::stol(val) == r_id)
+                        {
+                            Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
+                            release->print();
+                            cout << endl;
+                            answer.push_back(release);
+                            return answer;
+                        }
+                    }
+                    else if (varName=="name")
 					{
 						if(val == r_name)
 						{
@@ -266,7 +279,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if(stoi(val) == r_year)
+                        if(std::stoi(val) == r_year)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -286,7 +299,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if(stol(val) == a_id)
+                        if(std::stol(val) == a_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -327,7 +340,7 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -350,12 +363,11 @@ public:
 				file.read(&r_country[0],size_r_country);
 				file.read((char *)&a_id,sizeof(long));
 
-
 				if (r_id != 0)
 				{
 					if (varName=="id")
 					{
-						if(stol(val) != r_id)
+                        if(std::stol(val) != r_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -375,7 +387,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if(stoi(val) != r_year)
+                        if(std::stoi(val) != r_year)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -395,7 +407,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if(stol(val) != a_id)
+                        if(std::stol(val) != a_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -434,7 +446,7 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -462,7 +474,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) > r_id)
+                        if(std::stol(val) > r_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -472,7 +484,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if(stoi(val) > r_year)
+                        if(std::stoi(val) > r_year)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -482,7 +494,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if(stol(val) > a_id)
+                        if(std::stol(val) > a_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -525,7 +537,7 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -553,7 +565,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) >= r_id)
+                        if(std::stol(val) >= r_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -563,7 +575,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if(stoi(val) >= r_year)
+                        if(std::stoi(val) >= r_year)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -573,7 +585,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if(stol(val) >= a_id)
+                        if(std::stol(val) >= a_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -616,7 +628,7 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -644,7 +656,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) < r_id)
+                        if(std::stol(val) < r_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -654,7 +666,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if(stoi(val) < r_year)
+                        if(std::stoi(val) < r_year)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -664,7 +676,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if(stol(val) < a_id)
+                        if(std::stol(val) < a_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -707,7 +719,7 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -735,7 +747,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) <= r_id)
+                        if(std::stol(val) <= r_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -745,7 +757,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if(stoi(val) <= r_year)
+                        if(std::stoi(val) <= r_year)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -755,7 +767,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if(stol(val) <= a_id)
+                        if(std::stol(val) <= a_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -797,7 +809,7 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -825,7 +837,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(valMin) <= r_id  &&  r_id <= stol(valMax))
+                        if(std::stol(valMin) <= r_id  &&  r_id <= std::stol(valMax))
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -835,7 +847,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if(stoi(valMin) <= r_year  && r_year <= stoi(valMax))
+                        if(std::stoi(valMin) <= r_year  && r_year <= std::stoi(valMax))
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -845,7 +857,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if(stol(valMin) <= a_id  && a_id <= stol(valMax))
+                        if(std::stol(valMin) <= a_id  && a_id <= std::stol(valMax))
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -888,7 +900,7 @@ public:
 	{
 		vector<Release*> answer;
 		fstream file;
-		file.open("randomFileReleases.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -916,7 +928,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if( r_id < stol(valMin)   ||  stol(valMax) < r_id)
+                        if( r_id < std::stol(valMin)   ||  std::stol(valMax) < r_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -926,7 +938,7 @@ public:
 					}
 					else if (varName=="year")
 					{
-						if( r_year < stoi(valMin)   ||  stoi(valMax) < r_year)
+                        if( r_year < std::stoi(valMin)   ||  std::stoi(valMax) < r_year)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -936,7 +948,7 @@ public:
 					}
 					else if (varName=="artistId")
 					{
-						if( a_id < stol(valMin)   ||  stol(valMax) < a_id)
+                        if( a_id < std::stol(valMin)   ||  std::stol(valMax) < a_id)
 						{
 							Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 							release->print();
@@ -975,15 +987,28 @@ public:
 
 
 
-	vector<Release*> searchRelease(vector<string> val,string varName="id", string type="equal")
+    vector<Release*> searchRelease(vector<string> val,string varName="id", string type="equal", string indexing="random file")
 	{
 		if(type == "equal")
 		{
 			if(varName == "id")
 			{
-				vector<Release*> answer;
-				answer.push_back(searchReleaseIndex(stol(val[0])));
-				return answer;
+                if(indexing == "random file")
+                {
+                    vector<Release*> answer;
+                    Release* result = searchReleaseIndex(std::stol(val[0]));
+                    if (result != NULL)
+                        answer.push_back(result);
+                    return answer;
+                }
+                else if(indexing == "no index")
+                {
+                    return searchReleaseVarEqual(val[0],varName);
+                }
+                else
+                {
+                    return searchReleaseVarEqual(val[0],varName);
+                }
 			}
 
 			else		
@@ -1038,7 +1063,7 @@ public:
 
 		long pos = it->second;
 		fstream file;
-        file.open("randomFileArtists.dat", ios::in |  ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in |  ios::binary);
         file.seekg (pos,ios::beg);
 
         long a_id = 0;
@@ -1060,7 +1085,7 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -1076,6 +1101,16 @@ public:
 
 				if (a_id != 0)
 				{
+                    if (varName=="id")
+                    {
+                        if(std::stol(val) == a_id)
+                        {
+                            Artist* artist = new Artist(a_id,a_name);
+                            artist->print();
+                            cout << endl;
+                            answer.push_back(artist);
+                        }
+                    }
 					if (varName=="name")
 					{
 						if(val == a_name)
@@ -1115,7 +1150,7 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -1133,7 +1168,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) != a_id)
+                        if(std::stol(val) != a_id)
 						{
 							Artist* artist = new Artist(a_id,a_name);
 							artist->print();
@@ -1179,7 +1214,7 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -1197,7 +1232,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) > a_id)
+                        if(std::stol(val) > a_id)
 						{
 							Artist* artist = new Artist(a_id,a_name);
 							artist->print();
@@ -1235,7 +1270,7 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -1253,7 +1288,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) >= a_id)
+                        if(std::stol(val) >= a_id)
 						{
 							Artist* artist = new Artist(a_id,a_name);
 							artist->print();
@@ -1292,7 +1327,7 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -1310,7 +1345,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) < a_id)
+                        if(std::stol(val) < a_id)
 						{
 							Artist* artist = new Artist(a_id,a_name);
 							artist->print();
@@ -1349,7 +1384,7 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -1367,7 +1402,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(val) <= a_id)
+                        if(std::stol(val) <= a_id)
 						{
 							Artist* artist = new Artist(a_id,a_name);
 							artist->print();
@@ -1406,9 +1441,11 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
+            cout << "AHA" << endl;
 			while(!file.eof())
 			{			
 				long a_id = 0;
@@ -1424,7 +1461,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(stol(valMin) <= a_id && a_id <= stol(valMax))
+                        if(std::stol(valMin) <= a_id && a_id <= std::stol(valMax))
 						{
 							Artist* artist = new Artist(a_id,a_name);
 							artist->print();
@@ -1463,7 +1500,7 @@ public:
 	{
 		vector<Artist*> answer;
 		fstream file;
-		file.open("randomFileArtists.dat", ios::in | ios::binary);
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
 		if (file.is_open())
 		{
 			while(!file.eof())
@@ -1481,7 +1518,7 @@ public:
 				{
 					if (varName=="id")
 					{
-						if(a_id < stol(valMin) ||  stol(valMax) < a_id)
+                        if(a_id < std::stol(valMin) ||  std::stol(valMax) < a_id)
 						{
 							Artist* artist = new Artist(a_id,a_name);
 							artist->print();
@@ -1515,15 +1552,26 @@ public:
 		return answer;
 	}
 
-	vector<Artist*> searchArtist(vector<string> val,string varName="id", string type = "equal")
+    vector<Artist*> searchArtist(vector<string> val,string varName="id", string type = "equal", string indexing = "random file")
 	{
 		if (type=="equal")
 		{
 			if(varName == "id")
 			{
-				vector<Artist*> answer;
-				answer.push_back(searchArtistIndex(stol(val[0])));
-				return answer;
+                if (true)
+                {
+                    vector<Artist*> answer;
+                    answer.push_back(searchArtistIndex(std::stol(val[0])));
+                    return answer;
+                }
+                else if (indexing == "no index")
+                {
+                    return searchArtistVarEqual(val[0],varName);
+                }
+                else
+                {
+                    return searchArtistVarEqual(val[0],varName);
+                }
 			}
 
 			else		
@@ -1566,10 +1614,10 @@ public:
 	}
 
 
-	void insertRelease(string name,int year, string country, long a_id)
+    /*void insertRelease(string name,int year, string country, long a_id)
 	{
 		
-	}
+    }*/
 
 };
 
