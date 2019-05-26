@@ -8,9 +8,9 @@ using namespace std;
 void menu() {
     cout << "--------------------" << endl;
     cout << "Opciones disponibles:" << endl;
-    cout << "(0) insert <key> <value>   (key: int, value: string)" << endl;
-    cout << "(1) update <key> <new value>" << endl;
-    cout << "(2) search <key>" << endl;
+    cout << "(0) insert" << endl;
+    cout << "(1) update" << endl;
+    cout << "(2) search" << endl;
     cout << "(3) display" << endl;
     cout << "(4) exit" << endl;
     cout << "--------------------" << endl;
@@ -39,19 +39,26 @@ int main() {
         cout<<endl;
         cout<<"Elija opción: ";
         cin>>choice;
-        
+
         switch (choice) {
             case 0:
-                cin >> key >> value;
+                cout << "Ingrese key (int): ";
+                cin >> key ;
+                cout << "Ingrese value (string): ";
+                cin >> value;
                 cout << endl;
                 d.insert(key, value, 0);
                 break;
             case 1:
-                cin >> key >> value;
+                cout << "Ingrese key (int): ";
+                cin >> key;
+                cout << "Ingrese nuevo value (string): ";
+                cin >> value;
                 cout << endl;
                 d.update(key, value);
                 break;
             case 2:
+                cout << "Ingrese key (int): ";
                 cin >> key;
                 cout << endl;
                 d.search(key);
@@ -59,6 +66,9 @@ int main() {
             case 3:
                 cout << endl;
                 d.display(show_duplicate_buckets);
+                break;
+            default:
+                cout << "opcion no válida\n";
                 break;
         }
     } while(choice != 4);
