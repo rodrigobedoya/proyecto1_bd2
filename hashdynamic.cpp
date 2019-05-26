@@ -21,7 +21,7 @@ int main() {
     int bucket_size;
     int key, mode;
     int choice;
-    string value;
+    long value;
 
 
     // Set show_duplicate_buckets to 1 to see all pointers instead of unique ones
@@ -40,6 +40,7 @@ int main() {
         cout<<"Elija opción: ";
         cin>>choice;
 
+        long res;
         switch (choice) {
             case 0:
                 cout << "Ingrese key (int): ";
@@ -47,7 +48,8 @@ int main() {
                 cout << "Ingrese value (string): ";
                 cin >> value;
                 cout << endl;
-                d.insert(key, value, 0);
+                res = d.insert(key, value, 0);
+                cout << "RES: "<<res << endl;
                 break;
             case 1:
                 cout << "Ingrese key (int): ";
@@ -61,7 +63,8 @@ int main() {
                 cout << "Ingrese key (int): ";
                 cin >> key;
                 cout << endl;
-                d.search(key);
+                res = d.search(key);
+                cout << "RES: "<<res << endl;
                 break;
             case 3:
                 cout << endl;
