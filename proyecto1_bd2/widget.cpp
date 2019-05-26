@@ -43,31 +43,46 @@ void Widget::on_pushButton_clicked()
 
     QString qstrQuery = newQuery.getQuery();
     Request request;
-    request.processQuery(qstrQuery.toStdString());
-    std::cout << qstrQuery.toStdString() << std::endl;
-    request.print();
-    //QString table = "releases";
-    //QString id = "1";
+    if(request.processQuery(qstrQuery.toStdString()) == 0)
+    {
+        std::cout << qstrQuery.toStdString() << std::endl;
+        request.print();
+        //QString table = "releases";
+        //QString id = "1";
 
-    QString indexing = newQuery.getIndexing();
-    if (request.getTable()=="releases")
-    {
-        auto start = std::chrono::high_resolution_clock::now();
-        vector<Release*> releases = randomFile.searchRelease(request.getVal(),request.getVarName(),request.getType(),indexing.toStdString());
-        auto finish = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = finish - start;
-        cout << "time "  << elapsed.count() << " seconds"<<endl<<endl;
-        releaseQuery(releases);
+        if (request.getOperation()== "select")
+        {
+            QString indexing = newQuery.getIndexing();
+            if (request.getTable()=="releases")
+            {
+                auto start = std::chrono::high_resolution_clock::now();
+                vector<Release*> releases = randomFile.searchRelease(request.getVal(),request.getVarName(),request.getType(),indexing.toStdString());
+                auto finish = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = finish - start;
+                cout << "time "  << elapsed.count() << " seconds"<<endl<<endl;
+                releaseQuery(releases);
+            }
+            else if (request.getTable() == "artists")
+            {
+                auto start = std::chrono::high_resolution_clock::now();
+                vector<Artist*> artists = randomFile.searchArtist(request.getVal(),request.getVarName(),request.getType(),indexing.toStdString());
+                auto finish = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = finish - start;
+                cout << "time: "  << elapsed.count() << " seconds"<<endl<<endl;
+                artistQuery(artists);
+            }
+        }
+        else if (request.getOperation() == "insert")
+        {
+            QString indexing = newQuery.getIndexing();
+            if(request.getTable() == "releases")
+                randomFile.insertRelease(request.getVal(),indexing.toStdString());
+            else if (request.getTable() == "artists")
+                randomFile.insertArtist(request.getVal(),indexing.toStdString());
+        }
     }
-    else if (request.getTable() == "artists")
-    {
-        auto start = std::chrono::high_resolution_clock::now();
-        vector<Artist*> artists = randomFile.searchArtist(request.getVal(),request.getVarName(),request.getType(),indexing.toStdString());
-        auto finish = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = finish - start;
-        cout << "time: "  << elapsed.count() << " seconds"<<endl<<endl;
-        artistQuery(artists);
-    }
+    else
+        std::cout << "unable to identify query"<<std::endl;
 }
 
 void Widget::releaseQuery(vector<Release*> releases)

@@ -19,12 +19,16 @@ private:
 	string artistsFile;
 	map<long,long> releaseIndex;
 	map<long,long> artistIndex;
+    long lastPosR;
+    long lastPosA;
 
 public:
 	RandomFile()
 	{
         releasesFile = "../proyecto1_bd2/releases.dat";
         artistsFile = "../proyecto1_bd2/artists.dat";
+        lastPosA = 0;
+        lastPosR = 0;
 	}
 
 	void create()
@@ -171,11 +175,13 @@ public:
 					addressA += sizeof(long);
 					addressA += sizeof(size_t);
 					addressA += size_a_name;
-				}
+                }
 			}
 		}
 
-		file.close();	
+        file.close();
+        lastPosA = addressA;
+        lastPosR = addressR;
 	}
 
 	long getReleasePos(long index)
@@ -1050,6 +1056,8 @@ public:
 		}
 	}
 
+
+
 	Artist* searchArtistIndex(long index)
 	{
 		map<long,long>::iterator it = artistIndex.find(index);
@@ -1058,7 +1066,7 @@ public:
 			Artist* artist = new Artist;
 			artist->print();
 			cout << endl;
-			return artist;
+            return NULL;
 		}
 
 		long pos = it->second;
@@ -1109,9 +1117,10 @@ public:
                             artist->print();
                             cout << endl;
                             answer.push_back(artist);
+                            return answer;
                         }
                     }
-					if (varName=="name")
+                    else if (varName=="name")
 					{
 						if(val == a_name)
 						{
@@ -1558,10 +1567,12 @@ public:
 		{
 			if(varName == "id")
 			{
-                if (true)
+                if (indexing == "random file")
                 {
                     vector<Artist*> answer;
-                    answer.push_back(searchArtistIndex(std::stol(val[0])));
+                    Artist* result = searchArtistIndex(std::stol(val[0]));
+                    if (result != NULL)
+                        answer.push_back(result);
                     return answer;
                 }
                 else if (indexing == "no index")
@@ -1575,7 +1586,7 @@ public:
 			}
 
 			else		
-				return searchArtistVarEqual(val[0],varName);
+                return searchArtistVarEqual(val[0],varName);
 		}
 		else if(type == "notequal")
 		{
@@ -1614,10 +1625,117 @@ public:
 	}
 
 
-    /*void insertRelease(string name,int year, string country, long a_id)
-	{
-		
-    }*/
+    int insertRelease(vector<string> val,string indexing="random file")
+    {
+        if(val.size()>5)
+        {
+            cout << "Error:too many arguments"<<endl;
+            return 1;
+        }
+        else if(val.size()<5)
+        {
+            cout << "Error:not enough arguments"<<endl;
+            return 1;
+        }
+
+        cout << "Looking for registers with same id"<<endl;
+        vector<Release*> coincidences = searchRelease(val,"id","equal",indexing);
+        if(coincidences.size() > 0)
+        {
+            cout << "Error: Register with given id already exists!"<<endl;
+            return 1;
+        }
+        cout << "Inserting new register"<<endl;
+
+        long r_id = stol(val[0]);
+        string r_name = val[1];
+        size_t size_r_name = r_name.size();
+        int r_year = stoi(val[2]);
+        string r_country = val[3];
+        size_t size_r_country = r_country.size();
+        long a_id = stol(val[4]);
+
+        if (r_id > 0)
+        {
+            releaseIndex[r_id] = lastPosR;
+            ofstream randomFile;
+            randomFile.open("../proyecto1_bd2/randomFileReleases.dat", ios::out | ios::binary | ios::app);
+            randomFile.write((const char *)&r_id,sizeof(long));
+            randomFile.write((const char *)&size_r_name,sizeof(size_t));
+            randomFile.write(&r_name[0],size_r_name);
+            randomFile.write((const char *)&r_year,sizeof(int));
+            randomFile.write((const char *)&size_r_country,sizeof(size_t));
+            randomFile.write(&r_country[0],size_r_country);
+            randomFile.write((const char *)&a_id,sizeof(long));
+            randomFile.close();
+
+            lastPosR += sizeof(long);
+            lastPosR += sizeof(size_t);
+            lastPosR += size_r_name;
+            lastPosR += sizeof(int);
+            lastPosR += sizeof(size_t);
+            lastPosR += size_r_country;
+            lastPosR += sizeof(long);
+            cout << "Register Inserted"<<endl;
+            return 0;
+        }
+        else
+        {
+            cout << "id cannot be smaller than 1"<<endl;
+            return 1;
+        }
+    }
+
+    int insertArtist(vector<string> val,string indexing="random file")
+    {
+        if(val.size()>2)
+        {
+            cout << "Error:too many arguments"<<endl;
+            return 1;
+        }
+        else if(val.size()<2)
+        {
+            cout << "Error:not enough arguments"<<endl;
+            return 1;
+        }
+
+        cout << "Looking for registers with same id"<<endl;
+        vector<Artist*> coincidences = searchArtist(val,"id","equal",indexing);
+        if(coincidences.size() > 0)
+        {
+            cout << "Error: Register with given id already exists!"<<endl;
+            return 1;
+        }
+        cout << "Inserting new register"<<endl;
+
+        long a_id = stol(val[0]);
+        string a_name = val[1];
+        size_t size_a_name = a_name.size();
+
+        if (a_id > 0)
+        {
+            artistIndex[a_id] = lastPosA;
+            ofstream randomFile;
+            randomFile.open("../proyecto1_bd2/randomFileArtists.dat", ios::out | ios::binary | ios::app);
+
+            randomFile.write((const char *)&a_id,sizeof(long));
+            randomFile.write((const char *)&size_a_name,sizeof(size_t));
+            randomFile.write(&a_name[0],size_a_name);
+
+
+            randomFile.close();
+            lastPosA += sizeof(long);
+            lastPosA += sizeof(size_t);
+            lastPosA += size_a_name;
+            cout << "Register Inserted"<<endl;
+            return 0;
+        }
+        else
+        {
+            cout << "id cannot be smaller than 1"<<endl;
+            return 1;
+        }
+    }
 
 };
 

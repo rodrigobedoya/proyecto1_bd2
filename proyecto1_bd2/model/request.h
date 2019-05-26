@@ -66,7 +66,7 @@ public:
 			else if(word == "insert")
 			{
 				operation = "insert";
-				return 1;
+                return processInsert(sstream);
 			}
 			else
 			{
@@ -135,7 +135,7 @@ public:
 					{
 						sstream >> word;
 						transform(word.begin(), word.end(), word.begin(), ::tolower);
-						if(word == "==")
+                        if(word == "==" || word == "=")
 							type = "equal";
 						
 						else if(word == "!=")
@@ -208,6 +208,55 @@ public:
 		val.push_back(word);
         return 0;
 	}
+
+    int processInsert(stringstream &sstream)
+    {
+        string word;
+        if(sstream.rdbuf()->in_avail() != 0)
+        {
+            sstream >> word;
+            transform(word.begin(), word.end(), word.begin(), ::tolower);
+            if(word == "into")
+            {
+                sstream >> word;
+                if (word == "releases")
+                {
+                    table = "releases";
+                    return processInsertData(sstream);
+                }
+                else if (word == "artists")
+                {
+                    table="artists";
+                    return processInsertData(sstream);
+                }
+                else
+                    return error();
+            }
+            else
+                return error();
+        }
+        else
+            return error();
+
+    }
+
+    int processInsertData(stringstream &sstream)
+    {
+        string word;
+        sstream >> word;
+        transform(word.begin(), word.end(), word.begin(), ::tolower);
+        if(word == "values")
+        {
+            string data;
+            while(sstream>>data)
+            {
+                val.push_back(data);
+            }
+            return 0;
+        }
+        else
+            return error();
+    }
 };
 
 #endif
