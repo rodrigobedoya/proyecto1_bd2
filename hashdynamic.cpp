@@ -1,10 +1,9 @@
 #include <iostream>
 #include <string>
-
-using namespace std;
-
 #include "bucket.h"
 #include "directory.h"
+
+using namespace std;
 
 void menu() {
     cout << "--------------------" << endl;
