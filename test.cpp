@@ -10,7 +10,7 @@ long int countA = 0;
 int main()
 {
 	ifstream file;
-	file.open("releases.dat", ios::in | ios::binary);
+	file.open("ReleasesTotal.dat", ios::in | ios::binary);
 	
 	if (file.is_open())
 	{
@@ -43,7 +43,7 @@ int main()
 
 	file.close();
 
-	file.open("artists.dat", ios::in | ios::binary);
+	file.open("ArtistTotal.dat", ios::in | ios::binary);
 	if (file.is_open())
 	{
 		while(!file.eof())
