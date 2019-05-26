@@ -8,6 +8,7 @@
 #include "../model/artist.h"
 #include "../model/release.h"
 #include "../model/request.h"
+#include "directory.h"
 #include <map>
 #include <vector>
 using namespace std;
@@ -21,9 +22,12 @@ private:
 	map<long,long> artistIndex;
     long lastPosR;
     long lastPosA;
-
+    Directory dir_Release;
+    Directory dir_Artist;
 public:
-	RandomFile()
+    RandomFile():
+        dir_Release(1, 200),
+        dir_Artist(1,200)
 	{
         releasesFile = "../proyecto1_bd2/releases.dat";
         artistsFile = "../proyecto1_bd2/artists.dat";
@@ -140,6 +144,7 @@ public:
 				if (r_id != 0)
 				{
 					releaseIndex[r_id] = addressR;
+                    dir_Release.insert(r_id, addressR, 0);
 					addressR += sizeof(long);
 					addressR += sizeof(size_t);
 					addressR += size_r_name;
@@ -172,6 +177,7 @@ public:
 				if (a_id != 0)
 				{
 					artistIndex[a_id] = addressA;
+                    dir_Artist.insert(a_id, addressA, 0);
 					addressA += sizeof(long);
 					addressA += sizeof(size_t);
 					addressA += size_a_name;
@@ -232,6 +238,48 @@ public:
 		cout << endl;
         return release;
 	}
+
+
+    Release* searchReleaseHash(long index)
+    {
+        long pos = dir_Release.search(index);
+        if(pos == -1)
+        {
+            Release* release = new Release;
+            release->print();
+            cout << endl;
+            return NULL;
+        }
+        fstream file;
+        file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
+        file.seekg (pos,ios::beg);
+
+        long r_id = 0;
+        string r_name = "";
+        size_t size_r_name = 0;
+        int r_year = 0;
+        string r_country = "";
+        size_t size_r_country = 0;
+        long a_id = 0;
+
+        file.read((char *)&r_id,sizeof(long));
+        file.read((char *)&size_r_name,sizeof(size_t));
+        r_name.resize(size_r_name);
+        file.read(&r_name[0],size_r_name);
+        file.read((char *)&r_year,sizeof(int));
+        file.read((char *)&size_r_country,sizeof(size_t));
+        r_country.resize(size_r_country);
+        file.read(&r_country[0],size_r_country);
+        file.read((char *)&a_id,sizeof(long));
+
+        Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
+        release->print();
+        cout << endl;
+        return release;
+    }
+
+
+
 	
 	vector<Release*> searchReleaseVarEqual(string val, string varName)
 	{
@@ -1013,7 +1061,11 @@ public:
                 }
                 else
                 {
-                    return searchReleaseVarEqual(val[0],varName);
+                    vector<Release*> answer;
+                    Release* result = searchReleaseHash(std::stol(val[0]));
+                    if (result != NULL)
+                        answer.push_back(result);
+                    return answer;
                 }
 			}
 
@@ -1058,7 +1110,7 @@ public:
 
 
 
-	Artist* searchArtistIndex(long index)
+    Artist* searchArtistIndex(long index)
 	{
 		map<long,long>::iterator it = artistIndex.find(index);
 		if(it == artistIndex.end())
@@ -1070,6 +1122,7 @@ public:
 		}
 
 		long pos = it->second;
+        cout << "pos: "<<pos<<endl;
 		fstream file;
         file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in |  ios::binary);
         file.seekg (pos,ios::beg);
@@ -1088,6 +1141,37 @@ public:
 		cout << endl;
         return artist;
 	}
+
+
+    Artist* searchArtistHash(long index)
+    {
+        long pos = dir_Artist.search(index);
+        cout << "pos: "<<pos << endl;
+        if(pos == -1)
+        {
+            Artist* artist = new Artist;
+            artist->print();
+            cout << endl;
+            return NULL;
+        }
+        fstream file;
+        file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in |  ios::binary);
+        file.seekg (pos,ios::beg);
+
+        long a_id = 0;
+        string a_name = "";
+        size_t size_a_name = 0;
+
+        file.read((char *)&a_id,sizeof(long));
+        file.read((char *)&size_a_name,sizeof(size_t));
+        a_name.resize(size_a_name);
+        file.read(&a_name[0],size_a_name);
+
+        Artist* artist = new Artist(a_id,a_name);
+        artist->print();
+        cout << endl;
+        return artist;
+    }
 
 	vector<Artist*> searchArtistVarEqual(string val, string varName)
 	{
@@ -1581,7 +1665,11 @@ public:
                 }
                 else
                 {
-                    return searchArtistVarEqual(val[0],varName);
+                    vector<Artist*> answer;
+                    Artist* result = searchArtistHash(std::stol(val[0]));
+                    if (result != NULL)
+                        answer.push_back(result);
+                    return answer;
                 }
 			}
 
@@ -1658,6 +1746,7 @@ public:
         if (r_id > 0)
         {
             releaseIndex[r_id] = lastPosR;
+            dir_Release.insert(a_id, lastPosR, 0);
             ofstream randomFile;
             randomFile.open("../proyecto1_bd2/randomFileReleases.dat", ios::out | ios::binary | ios::app);
             randomFile.write((const char *)&r_id,sizeof(long));
@@ -1715,6 +1804,7 @@ public:
         if (a_id > 0)
         {
             artistIndex[a_id] = lastPosA;
+            dir_Artist.insert(a_id, lastPosA, 0);
             ofstream randomFile;
             randomFile.open("../proyecto1_bd2/randomFileArtists.dat", ios::out | ios::binary | ios::app);
 

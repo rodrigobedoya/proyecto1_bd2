@@ -28,7 +28,9 @@ HEADERS  += widget.h \
     transactionmenu.h \
     newtransaction.h \
     model/transaction.h \
-    model/transaction_handler.h
+    model/transaction_handler.h \
+    file_organization/bucket.h \
+    file_organization/directory.h
 
 FORMS    += widget.ui \
     makequery.ui \
