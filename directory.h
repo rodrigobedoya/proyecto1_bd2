@@ -20,19 +20,6 @@ class Directory {
         global_depth++;
     }
     
-    void shrink() {
-        int flag = 1;
-        for (int i = 0; i < buckets.size(); i++) {
-            if (buckets[i]->getDepth() == global_depth) {
-                flag = 0;
-                return;
-            }
-        }
-        global_depth--;
-        for (int i = 0; i < 1<<global_depth; i++)
-            buckets.pop_back();
-    }
-    
     void split(int bucket_no) {
         int local_depth, pair_index, index_diff, dir_size;
         map<int, string> temp;
@@ -54,24 +41,6 @@ class Directory {
             buckets[i] = buckets[pair_index];
         for (auto it = temp.begin(); it != temp.end(); it++)
             insert((*it).first, (*it).second, 1);
-    }
-    
-    void merge(int bucket_no) {
-        int local_depth, pair_index, index_diff, dir_size;
-        local_depth = buckets[bucket_no]->getDepth();
-        pair_index = pairIndex(bucket_no, local_depth);
-        index_diff = 1<<local_depth;
-        dir_size = 1<<global_depth;
-
-        if (buckets[pair_index]->getDepth() == local_depth) {
-            buckets[pair_index]->decrementDepth();
-            delete(buckets[bucket_no]);
-            buckets[bucket_no] = buckets[pair_index];
-            for (int i = bucket_no - index_diff; i >= 0; i -=index_diff)
-                buckets[i] = buckets[pair_index];
-            for (int i = bucket_no + index_diff; i > dir_size; i += index_diff)
-                buckets[i] = buckets[pair_index];
-        }
     }
     
     string bucket_id(int n) {
