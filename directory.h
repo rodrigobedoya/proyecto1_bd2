@@ -4,20 +4,15 @@
 #include <vector>
 #include <string>
 #include <set>
-
 #include "bucket.h"
 
 class Directory {
     int global_depth, bucket_size;
     vector<Bucket*> buckets;
 
-    int hash(int n) {
-        return n&((1<<global_depth) - 1);
-    }
+    int hash(int n) { return n & ((1<<global_depth) - 1); }
     
-    int pairIndex(int bucket_no, int depth) {
-        return bucket_no^(1<<(depth - 1));
-    }
+    int pairIndex(int bucket_no, int depth) { return bucket_no ^ (1<<(depth - 1)); }
     
     void grow() {
         for (int i = 0; i < 1<<global_depth; i++)
@@ -42,7 +37,7 @@ class Directory {
         int local_depth, pair_index, index_diff, dir_size;
         map<int, string> temp;
 
-        local_depth = buckets[bucket_no]->increaseDepth();
+        local_depth = buckets[bucket_no]->incrementDepth();
         if (local_depth > global_depth)
             grow();
         
@@ -69,7 +64,7 @@ class Directory {
         dir_size = 1<<global_depth;
 
         if (buckets[pair_index]->getDepth() == local_depth) {
-            buckets[pair_index]->decreaseDepth();
+            buckets[pair_index]->decrementDepth();
             delete(buckets[bucket_no]);
             buckets[bucket_no] = buckets[pair_index];
             for (int i = bucket_no - index_diff; i >= 0; i -=index_diff)
@@ -118,18 +113,6 @@ class Directory {
             }
         }
         
-        void remove(int key,int mode) {
-            int bucket_no = hash(key);
-            if (buckets[bucket_no]->remove(key))
-                cout << "Key eliminada " << key << " de bucket " << bucket_id(bucket_no) << endl;
-            if (mode > 0) {
-                if (buckets[bucket_no]->isEmpty() && buckets[bucket_no]->getDepth() > 1)
-                    merge(bucket_no);
-            }
-            if (mode > 1)
-                shrink();
-        }
-        
         void update(int key, string value) {
             int bucket_no = hash(key);
             buckets[bucket_no]->update(key, value);
@@ -153,7 +136,7 @@ class Directory {
                     shown.insert(s);
                     for (int j = d; j <= global_depth; j++)
                         cout << " ";
-                    cout << s << " => ";
+                    cout << s << " -> ";
                     buckets[i]->display();
                 }
             }

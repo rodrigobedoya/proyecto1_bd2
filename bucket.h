@@ -1,7 +1,9 @@
 #ifndef BUCKET_H
 #define BUCKET_H
 
+#include <iostream>
 #include <map>
+using namespace std;
 
 class Bucket {
     int depth, size;
@@ -10,6 +12,14 @@ class Bucket {
     public:
         Bucket(int depth, int size) : depth(depth), size(size) {};
         
+        void search(int key) {
+            auto it = values.find(key);
+            if (it != values.end())
+                cout << "Valor = " << it->second << endl;
+            else
+                cout << "Key no existe\n";
+        }
+
         int insert(int key,string value) {
             auto it = values.find(key);
             if (it != values.end())
@@ -20,72 +30,16 @@ class Bucket {
             return 1;
         }
         
-        int remove(int key) {
-            auto it = values.find(key);
-            if (it != values.end()) {
-                values.erase(it);
-                return -1;
-            } else {
-                cout << "No se puede remover: key no existe\n";
-                return 0;
-            }
-        }
-        
-        int update(int key, string value) {
+        bool update(int key, string value) {
             auto it = values.find(key);
             if (it != values.end()) {
                 values[key] = value;
                 cout << "Valor actualizado\n";
-                return 1;
+                return true;
             } else {
                 cout << "No se puede actualizar: key no existe\n";
-                return 0;
+                return false;
             }
-        }
-        
-        void search(int key) {
-            auto it = values.find(key);
-            if (it != values.end())
-                cout << "Valor = " << it->second << endl;
-            else
-                cout << "Key no existe\n";
-        }
-        
-        int isFull() {
-            if (values.size() == size)
-                return 1;
-            else
-                return 0;
-        }
-        
-        int isEmpty() {
-            if (values.size() == 0)
-                return 1;
-            else
-                return 0;
-        }
-        
-        int getDepth() {
-            return depth;
-        }
-        
-        int increaseDepth() {
-            depth++;
-            return depth;
-        }
-        
-        int decreaseDepth() {
-            depth--;
-            return depth;
-        }
-        
-        map<int, string> copy() {
-            map<int, string> temp(values.begin(), values.end());
-            return temp;
-        }
-        
-        void clear() {
-            values.clear();
         }
         
         void display() {
@@ -93,5 +47,37 @@ class Bucket {
                 cout << it->first << " ";
             cout << endl;
         }
+        
+        map<int, string> copy() {
+            map<int, string> temp(values.begin(), values.end());
+            return temp;
+        }
+
+        bool isFull() {
+            if (values.size() == size)
+                return true;
+            return false;
+        }
+        
+        bool isEmpty() {
+            if (values.size() == 0)
+                return true;
+            return false;
+        }
+        
+        int getDepth() { return depth; }
+        
+        int incrementDepth() {
+            depth++;
+            return depth;
+        }
+        
+        int decrementDepth() {
+            depth--;
+            return depth;
+        }
+        
+        void clear() { values.clear(); }
+        
 };
 #endif
