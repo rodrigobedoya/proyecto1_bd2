@@ -11,7 +11,8 @@ TransactionMenu::TransactionMenu(QWidget *parent) :
     ui->setupUi(this);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText("Run");
     std::ofstream tFile;
-    tFile.open("../proyecto1_bd2/transactions.txt", std::ofstream::out | std::ofstream::trunc);
+    //erase content of transactions.txt
+    tFile.open("../proyecto1_bd2/transactions.txt", std::ofstream::out | std::ofstream::trunc); 
     tFile.close();
 }
 
