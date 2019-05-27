@@ -34,6 +34,7 @@ void TransactionMenu::on_pushButton_clicked()
     handler.add(newTransaction.transaction);
     std::cout << "Transaction saved to transaction handler"<<std::endl;
 
+    //get new transaction instructions
     QFile file("../proyecto1_bd2/instructions.txt");
     file.open(QIODevice::ReadOnly);
     QTextStream stream(&file);
@@ -43,13 +44,14 @@ void TransactionMenu::on_pushButton_clicked()
     content += "\n";
 
 
-
+    //add new transaction instructions to transactions.txt
     QFile file2("../proyecto1_bd2/transactions.txt");
     file2.open(QIODevice::WriteOnly| QIODevice::Append);
     QTextStream stream2(&file2);
     stream2 << content;
     file2.close();
 
+    //show all lines in transactions.txt(update interface)
     file2.open(QIODevice::ReadOnly);
     QTextStream stream3(&file2);
     QString content2 = stream3.readAll();
