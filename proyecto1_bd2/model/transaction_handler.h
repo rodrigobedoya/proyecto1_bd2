@@ -89,11 +89,11 @@ public:
 
         if (r.getTable()=="releases")
         {
-            vector<Release*> releases = randomFile.searchRelease(r.getVal(),r.getVarName(),r.getType());
+            randomFile.searchRelease(r.getVal(),r.getVarName(),r.getType());
         }
         else if (r.getTable() == "artists")
         {
-            vector<Artist*> artists = randomFile.searchArtist(r.getVal(),r.getVarName(),r.getType());
+            randomFile.searchArtist(r.getVal(),r.getVarName(),r.getType());
         }
 
 		mtx.lock();
@@ -115,7 +115,16 @@ public:
 			}
 			mtx.unlock();
 		}
-        cout << r.getOperation()<<endl;
+
+        if (r.getTable()=="releases")
+        {
+            randomFile.insertRelease(r.getVal());
+        }
+        else if (r.getTable() == "artists")
+        {
+            randomFile.insertArtist(r.getVal());
+        }
+
 		mtx.lock();
 		writing--;
 		mtx.unlock();
