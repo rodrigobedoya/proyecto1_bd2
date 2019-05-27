@@ -22,7 +22,7 @@ class Directory {
     
     void split(int bucket_no) {
         int local_depth, pair_index, index_diff, dir_size;
-        map<int, string> temp;
+        map<int, long> temp;
 
         local_depth = buckets[bucket_no]->incrementDepth();
         if (local_depth > global_depth)
@@ -66,7 +66,7 @@ class Directory {
                 buckets.push_back(new Bucket(depth, bucket_size));
         }
         
-        void insert(int key, string value, bool reinserted) {
+        int insert(int key, long value, bool reinserted) {
             int bucket_no = hash(key);
             int status = buckets[bucket_no]->insert(key, value);
             if (status == 1) {
@@ -79,18 +79,20 @@ class Directory {
                 insert(key, value, reinserted);
             } else {
                 cout << "Key " << key << " ya existe en bucket " << bucket_id(bucket_no) << endl;
+                return 1;
             }
+            return 0;
         }
         
-        void update(int key, string value) {
+        void update(int key, long value) {
             int bucket_no = hash(key);
             buckets[bucket_no]->update(key, value);
         }
         
-        void search(int key) {
+        long search(int key) {
             int bucket_no = hash(key);
             cout << "Buscando key " << key << " en bucket " << bucket_id(bucket_no) << endl;
-            buckets[bucket_no]->search(key);
+            return buckets[bucket_no]->search(key);
         }
         
         void display(bool duplicates) {

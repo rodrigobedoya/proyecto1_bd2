@@ -7,20 +7,26 @@ using namespace std;
 
 class Bucket {
     int depth, size;
-    map<int, string> values;
+    map<int, long> values;
 
     public:
         Bucket(int depth, int size) : depth(depth), size(size) {};
         
-        void search(int key) {
+        long search(int key) {
             auto it = values.find(key);
             if (it != values.end())
+            {
                 cout << "Valor = " << it->second << endl;
+                return 0;
+            }
             else
+            {
                 cout << "Key no existe\n";
+                return 1;
+            }
         }
 
-        int insert(int key,string value) {
+        int insert(int key,long value) {
             auto it = values.find(key);
             if (it != values.end())
                 return -1;
@@ -30,7 +36,7 @@ class Bucket {
             return 1;
         }
         
-        bool update(int key, string value) {
+        bool update(int key, long value) {
             auto it = values.find(key);
             if (it != values.end()) {
                 values[key] = value;
@@ -48,8 +54,8 @@ class Bucket {
             cout << endl;
         }
         
-        map<int, string> copy() {
-            map<int, string> temp(values.begin(), values.end());
+        map<int, long> copy() {
+            map<int, long> temp(values.begin(), values.end());
             return temp;
         }
 
