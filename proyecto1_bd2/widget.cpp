@@ -12,8 +12,8 @@ Widget::Widget(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Query");
-    randomFile.create();
-    randomFile.load();
+    randomFile.create(); //copy data, delete duplicates
+    randomFile.load(); //create index map, hash table
 }
 
 Widget::~Widget()
@@ -21,6 +21,7 @@ Widget::~Widget()
     delete ui;
 }
 
+//pressing transactions button
 void Widget::on_pushButton_2_clicked()
 {
     TransactionMenu transactionMenu(this);
@@ -32,7 +33,7 @@ void Widget::on_pushButton_2_clicked()
     transactionMenu.handler.run_all(randomFile);
 }
 
-
+//pressing new query button
 void Widget::on_pushButton_clicked()
 {
     makeQuery newQuery(this);
@@ -41,14 +42,12 @@ void Widget::on_pushButton_clicked()
     if(queryState == QDialog::Rejected)
         return;
 
-    QString qstrQuery = newQuery.getQuery();
+    QString qstrQuery = newQuery.getQuery(); //get user query
     Request request;
-    if(request.processQuery(qstrQuery.toStdString()) == 0)
+    if(request.processQuery(qstrQuery.toStdString()) == 0) // if query could be parsed
     {
         std::cout << qstrQuery.toStdString() << std::endl;
-        request.print();
-        //QString table = "releases";
-        //QString id = "1";
+        request.print(); //print request parameters to console
 
         if (request.getOperation()== "select")
         {
@@ -56,35 +55,52 @@ void Widget::on_pushButton_clicked()
             if (request.getTable()=="releases")
             {
                 auto start = std::chrono::high_resolution_clock::now();
+                //save search result
                 vector<Release*> releases = randomFile.searchRelease(request.getVal(),request.getVarName(),request.getType(),indexing.toStdString());
                 auto finish = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = finish - start;
-                cout << "time "  << elapsed.count() << " seconds"<<endl<<endl;
-                releaseQuery(releases);
+                cout << "time "  << elapsed.count() << " seconds"<<endl<<endl; //print running time
+                releaseQuery(releases); //show table
             }
             else if (request.getTable() == "artists")
             {
                 auto start = std::chrono::high_resolution_clock::now();
+                //save search result
                 vector<Artist*> artists = randomFile.searchArtist(request.getVal(),request.getVarName(),request.getType(),indexing.toStdString());
                 auto finish = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = finish - start;
-                cout << "time: "  << elapsed.count() << " seconds"<<endl<<endl;
-                artistQuery(artists);
+                cout << "time: "  << elapsed.count() << " seconds"<<endl<<endl; //print running time
+                artistQuery(artists); //show table
             }
         }
         else if (request.getOperation() == "insert")
         {
             QString indexing = newQuery.getIndexing();
             if(request.getTable() == "releases")
+            {
+                auto start = std::chrono::high_resolution_clock::now();
+                //insert
                 randomFile.insertRelease(request.getVal(),indexing.toStdString());
+                auto finish = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = finish - start;
+                cout << "time "  << elapsed.count() << " seconds"<<endl<<endl; //print running time
+            }
             else if (request.getTable() == "artists")
+            {
+                auto start = std::chrono::high_resolution_clock::now();
+                //insert
                 randomFile.insertArtist(request.getVal(),indexing.toStdString());
+                auto finish = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = finish - start;
+                cout << "time "  << elapsed.count() << " seconds"<<endl<<endl; //print running time
+            }
         }
     }
     else
         std::cout << "unable to identify query"<<std::endl;
 }
 
+//display search result of "releases"
 void Widget::releaseQuery(vector<Release*> releases)
 {
     ui->tableWidget->setColumnCount(5);
@@ -95,6 +111,7 @@ void Widget::releaseQuery(vector<Release*> releases)
 
     for (unsigned int row = 0; row < releases.size(); ++row)
     {
+        //fill row
         QTableWidgetItem *item0 = new QTableWidgetItem;
         item0->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
         item0->setData(Qt::DisplayRole, (unsigned long long)releases[row]->getId());
@@ -122,10 +139,11 @@ void Widget::releaseQuery(vector<Release*> releases)
         item4->setData(Qt::DisplayRole, (long long)releases[row]->getArtistId());
         ui->tableWidget->setItem(row, 4, item4);
     }
-    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); //make table uneditable
     ui->tableWidget->resizeColumnsToContents();
 }
 
+//display search result of artists
 void Widget::artistQuery(vector<Artist*> artists)
 {
     ui->tableWidget->setColumnCount(2);
@@ -136,6 +154,7 @@ void Widget::artistQuery(vector<Artist*> artists)
 
     for (unsigned int row = 0; row < artists.size(); ++row)
     {
+        //fill row
         QTableWidgetItem *item0 = new QTableWidgetItem;
         item0->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
         item0->setData(Qt::DisplayRole, (long long)artists[row]->getId());
@@ -147,7 +166,7 @@ void Widget::artistQuery(vector<Artist*> artists)
         item1->setData(Qt::DisplayRole, qstr);
         ui->tableWidget->setItem(row, 1, item1);
     }
-    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); //make table uneditable
     ui->tableWidget->resizeColumnsToContents();
 }
 
