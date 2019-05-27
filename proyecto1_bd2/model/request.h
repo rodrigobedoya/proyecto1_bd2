@@ -28,6 +28,7 @@ public:
 
 	string getVal(int i){return val[i];}
 
+	//print request parameters
 	void print()
 	{
 		cout << "operation: "<<operation<<endl;
@@ -42,11 +43,14 @@ public:
 		cout << endl;
 	}
 
+	//general purpose error function
 	int error()
 	{
 		cout << "ERROR: Unknown command"<<endl;
 		return 1;
 	}
+	
+	//parse query string
 	int processQuery(string query)
 	{
 		val.clear();
@@ -54,19 +58,19 @@ public:
 		sstream << query;
 		string word;
 		
-		if (sstream.rdbuf()->in_avail() != 0)
+		if (sstream.rdbuf()->in_avail() != 0) //if query is not empty string
 		{		
 			sstream >> word;
 			transform(word.begin(), word.end(), word.begin(), ::tolower);
 			if(word == "select")
 			{
 				operation = "select";
-				return processSelect(sstream);
+				return processSelect(sstream); //parse as "select" request
 			}
 			else if(word == "insert")
 			{
-				operation = "insert";
-                return processInsert(sstream);
+				operation = "insert"; 
+                return processInsert(sstream); //parse as "insert" request
 			}
 			else
 			{
@@ -81,28 +85,31 @@ public:
 		}
 	}
 
+	
+	//select request parsing
 	int processSelect(stringstream &sstream)
 	{
 		string word;
 		if(sstream.rdbuf()->in_avail() != 0)
 		{
 			sstream >> word;
-			if(word == "*")
+			if(word == "*") //accept only "*", no specific attr
 			{
 				sstream >> word;
 				transform(word.begin(), word.end(), word.begin(), ::tolower);
 				if(word == "from")
 				{
 					sstream >> word;
+					//determine table
 					if (word == "releases")
 					{
 						table = "releases";
-						return processSelectConstraint(sstream);
+						return processSelectConstraint(sstream); //parse specific request constraint 
 					}
 					else if (word == "artists")
 					{
 						table="artists";
-						return processSelectConstraint(sstream);
+						return processSelectConstraint(sstream); //parse specific request constraint
 					}
 					else
 						return error();
@@ -118,6 +125,7 @@ public:
 		
 	}
 
+	//parse specific request constraint
 	int processSelectConstraint(stringstream &sstream)
 	{
 		string word;
@@ -161,17 +169,19 @@ public:
 							{
 								type = "notbetween";
 							}
-							return processSelectConstraintBetween(sstream);
-						}
+							//get two attributes
+							return processSelectConstraintBetween(sstream);						}
 						else if(word == "between")
 						{
 							type = "between";
+							//get two attributes
 							return processSelectConstraintBetween(sstream);
 						}
 						else
 						{
 							return error();
 						}
+						//get one attribute
 						return processSelectConstraintSingle(sstream);
 					}					
 					else
@@ -190,6 +200,7 @@ public:
 		}
 	}
 
+	//get one attribute
 	int processSelectConstraintSingle(stringstream &sstream)
 	{
 		string word;
@@ -197,7 +208,8 @@ public:
         val.push_back(word);
         return 0;
 	}
-
+	
+	//get two attributes
 	int processSelectConstraintBetween(stringstream &sstream)
 	{
 		string word;
@@ -209,6 +221,7 @@ public:
         return 0;
 	}
 
+	//parse "insert" request
     int processInsert(stringstream &sstream)
     {
         string word;
@@ -219,15 +232,16 @@ public:
             if(word == "into")
             {
                 sstream >> word;
+		    //determine table
                 if (word == "releases")
                 {
                     table = "releases";
-                    return processInsertData(sstream);
+                    return processInsertData(sstream); //get values
                 }
                 else if (word == "artists")
                 {
                     table="artists";
-                    return processInsertData(sstream);
+                    return processInsertData(sstream); //get values
                 }
                 else
                     return error();
@@ -239,7 +253,8 @@ public:
             return error();
 
     }
-
+	
+	//get values
     int processInsertData(stringstream &sstream)
     {
         string word;
