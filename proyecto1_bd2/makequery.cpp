@@ -26,11 +26,11 @@ void makeQuery::on_buttonBox_rejected()
 
 QString makeQuery::getQuery()
 {
-    return ui->query->text();
+    return ui->query->text(); //get user's query input as string 
 }
 
 QString makeQuery::getIndexing()
 {
-    QString str = ui->comboBox->currentText();
+    QString str = ui->comboBox->currentText(); //get indexing type chosen by user
     return str;
 }
