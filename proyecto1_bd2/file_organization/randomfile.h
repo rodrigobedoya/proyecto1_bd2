@@ -202,6 +202,7 @@ public:
 
 	Release* searchReleaseIndex(long index)
 	{
+        int diskAccesses = 0;
         map<long,long>::iterator it = releaseIndex.find(index);
         if(it == releaseIndex.end())
 		{
@@ -233,15 +234,18 @@ public:
 		file.read(&r_country[0],size_r_country);
 		file.read((char *)&a_id,sizeof(long));
 
+        diskAccesses++;
 		Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
 		release->print();
 		cout << endl;
+        cout << "Disk Accesses: "<<diskAccesses<<endl;
         return release;
 	}
 
 
     Release* searchReleaseHash(long index)
     {
+        int diskAccesses = 0;
         long pos = dir_Release.search(index);
         if(pos == -1)
         {
@@ -271,10 +275,11 @@ public:
         r_country.resize(size_r_country);
         file.read(&r_country[0],size_r_country);
         file.read((char *)&a_id,sizeof(long));
-
+        diskAccesses++;
         Release* release = new Release(r_id,r_name,r_year,r_country,a_id);
         release->print();
         cout << endl;
+        cout << "Disk Accesses: "<<diskAccesses<<endl;
         return release;
     }
 
@@ -283,6 +288,7 @@ public:
 	
 	vector<Release*> searchReleaseVarEqual(string val, string varName)
 	{
+        int diskAccesses = 0;
 		vector<Release*> answer;
 		fstream file;
         file.open("../proyecto1_bd2/randomFileReleases.dat", ios::in |  ios::binary);
@@ -307,7 +313,7 @@ public:
 				r_country.resize(size_r_country);
 				file.read(&r_country[0],size_r_country);
 				file.read((char *)&a_id,sizeof(long));
-
+                diskAccesses++;
                 if (r_id != 0)
 				{
                     if (varName=="id")
@@ -318,6 +324,7 @@ public:
                             release->print();
                             cout << endl;
                             answer.push_back(release);
+                            cout << "Disk Accesses: "<<diskAccesses<<endl;
                             return answer;
                         }
                     }
@@ -1112,6 +1119,7 @@ public:
 
     Artist* searchArtistIndex(long index)
 	{
+        int diskAccesses = 0;
 		map<long,long>::iterator it = artistIndex.find(index);
 		if(it == artistIndex.end())
 		{
@@ -1135,16 +1143,18 @@ public:
 		file.read((char *)&size_a_name,sizeof(size_t));
 		a_name.resize(size_a_name);
 		file.read(&a_name[0],size_a_name);
-
+        diskAccesses++;
 		Artist* artist = new Artist(a_id,a_name);
 		artist->print();
 		cout << endl;
+        cout << "Disk Accesses: "<<diskAccesses<<endl;
         return artist;
 	}
 
 
     Artist* searchArtistHash(long index)
     {
+        int diskAccesses = 0;
         long pos = dir_Artist.search(index);
         cout << "pos: "<<pos << endl;
         if(pos == -1)
@@ -1166,15 +1176,17 @@ public:
         file.read((char *)&size_a_name,sizeof(size_t));
         a_name.resize(size_a_name);
         file.read(&a_name[0],size_a_name);
-
+        diskAccesses++;
         Artist* artist = new Artist(a_id,a_name);
         artist->print();
         cout << endl;
+        cout << "Disk Accesses: "<<diskAccesses<<endl;
         return artist;
     }
 
 	vector<Artist*> searchArtistVarEqual(string val, string varName)
 	{
+        int diskAccesses = 0;
 		vector<Artist*> answer;
 		fstream file;
         file.open("../proyecto1_bd2/randomFileArtists.dat", ios::in | ios::binary);
@@ -1190,7 +1202,7 @@ public:
 				file.read((char *)&size_a_name,sizeof(size_t));
 				a_name.resize(size_a_name);
 				file.read(&a_name[0],size_a_name);
-
+                diskAccesses++;
 				if (a_id != 0)
 				{
                     if (varName=="id")
@@ -1201,6 +1213,7 @@ public:
                             artist->print();
                             cout << endl;
                             answer.push_back(artist);
+                            cout << "Disk Accesses: "<<diskAccesses<<endl;
                             return answer;
                         }
                     }
