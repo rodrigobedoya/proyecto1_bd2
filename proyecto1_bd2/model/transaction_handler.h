@@ -14,11 +14,11 @@ using namespace std;
 
 class TransactionHandler
 {
-	mutex mtx;
-	mutex print_mtx;  
+	mutex mtx; //condition checking, writing-reading counter manager
+	mutex print_mtx;  //for printing without interruption
 	vector<Transaction> transactions;
-	int writing;
-	int reading;
+	int writing; //number of transactions doing write instructions
+	int reading; //number of transactions doing read instructions
 public:
 	TransactionHandler(){
 		writing = 0;
@@ -78,7 +78,7 @@ public:
 		while(true)
 		{
 			mtx.lock();
-			if(writing == 0)
+			if(writing == 0) //if no transaction is writing, proceed
 			{
 				reading++;
 				mtx.unlock();
@@ -107,7 +107,7 @@ public:
 		while(true)
 		{
 			mtx.lock();
-			if(reading == 0 && writing == 0)
+			if(reading == 0 && writing == 0) //if no transaction is doing anything, proceed
 			{
 				writing++;
 				mtx.unlock();
